@@ -1,17 +1,9 @@
 import { createInterface } from "readline";
+import { exit } from "process";
 import { access, constants } from 'fs/promises';
+import path from "path";
 
 const commands = ["exit","type","echo"]
-
-async function checkExecutePermission(path: string): Promise<boolean> {
-  try {
-    // Check if the path is executable (X_OK)
-    await access(path, constants.X_OK);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 const rl = createInterface({
   input: process.stdin,
@@ -20,45 +12,55 @@ const rl = createInterface({
 });
 
 rl.prompt();
+rl.on('line', async (command: string) => {
+  await parseCommand(command)
+  rl.prompt();
+});
 
-rl.on('line', (command: string) => {
-  // handle Exit
+async function parseCommand(command: string){
   if (command === 'exit') {
     rl.close();
-    return;
+    exit()
   }
 
   const [mainCommand, ...args] = command.split(' ');
 
   if (!commands.includes(mainCommand)) {
     console.log(`${mainCommand}: command not found`);
+    return
   }
 
-  // handle Type
   if (mainCommand === "type") {
     const secondCommand = args[0];
-    const systemPath: string = process.env.Path;
-    const systemPaths = systemPath.split(":");
-    const foundPaths = systemPaths.filter( async (path: string) => {
-      const found = path.includes(secondCommand);
-      if (!found) return false
-      return await checkExecutePermission(path)
-    } )
-    
-    const foundPath = foundPaths[0]
 
     if (commands.includes(mainCommand)) {
-      console.log(`${args[0]} is a shell builtin`)
-    } else if(foundPath){
-      console.log(`${secondCommand} is ${foundPath}`)
-    } else {
-      console.log(`${secondCommand}: not found`);
+      console.log(`${secondCommand} is a shell builtin`);
+      return
+    } 
+
+    const userPath = process.env.Path
+    if (!userPath) {
+      console.log(`${secondCommand}: not found`)
+      return;
     }
+
+    const dirs = userPath.split(path.delimiter) // delimteres are different for each OS (; or :)
+    for( const dir in dirs) {
+      const filePath = path.join(dir, secondCommand) // paths are different for each os ( / or \)
+      try {
+        await access(filePath, constants.X_OK)
+        console.log(`${secondCommand} is ${filePath}`)
+      } catch {
+        console.log(`${secondCommand}: not found`);
+      }
+    }
+
+    console.log(`${secondCommand}: not found`);
   }
   // handle Echo
-  else if (mainCommand === "echo") {
+  if (mainCommand === "echo") {
     console.log(args.join(" ")); 
+    return;
   } 
-
-  rl.prompt();
-});
+}
+  
