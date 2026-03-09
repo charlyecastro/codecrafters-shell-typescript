@@ -21,14 +21,14 @@ rl.on('line', (command: string) => {
     if (secondCommand === "echo" || secondCommand === "exit" || secondCommand === "type") {
       console.log(`${args[0]} is a shell builtin`)
     } else {
-      console.log(`${command}: not found`);
+      console.log(`${secondCommand}: not found`);
     }
   }
   // handle Echo
   else if (mainCommand === "echo") {
     console.log(args.join(" ")); 
   } else {
-    console.log(`${command}: command not found`);
+    console.log(`${mainCommand}: command not found`);
   }
   rl.prompt();
 });
