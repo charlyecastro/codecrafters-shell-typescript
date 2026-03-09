@@ -48,7 +48,7 @@ async function parseCommand(command: string){
     const dirs = userPath.split(path.delimiter) // delimteres are different for each OS (; or :)
     for( const dir in dirs) {
       const filePath = path.join(dir, secondCommand) // paths are different for each os ( / or \)
-      triedPath = triedPath
+      triedPath = filePath
       try {
         await access(filePath, constants.X_OK)
         console.log(`${secondCommand} is ${filePath}`);
@@ -56,7 +56,7 @@ async function parseCommand(command: string){
       } catch {}
     }
 
-    console.log(`${secondCommand}: not found`);
+    console.log(`${secondCommand}: not found: ${triedPath}`);
   }
   // handle Echo
   if (mainCommand === "echo") {
