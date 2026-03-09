@@ -3,6 +3,7 @@ import { exit } from "process";
 import { access } from 'fs/promises';
 import { constants as fsConstants } from "fs";
 import path from "path";
+import which from "which";
 
 const commands = ["exit","type","echo"]
 
@@ -14,11 +15,11 @@ const rl = createInterface({
 
 rl.prompt();
 rl.on('line', async (command: string) => {
-  await parseCommand(command)
+  parseCommand(command)
   rl.prompt();
 });
 
-async function parseCommand(command: string){
+function parseCommand(command: string){
   if (command === 'exit') {
     rl.close();
     exit()
@@ -39,22 +40,10 @@ async function parseCommand(command: string){
       return
     } 
 
-    const userPath = process.env.PATH
-    if (!userPath) {
-      console.log(`${secondCommand}: not found`)
+    const location: string | null = which.sync(command, { nothrow: true });
+    if (location !== null) {
+      console.log(`${secondCommand} is ${location}`);
       return;
-    }
-
-    let triedPath = ""
-    const dirs = userPath.split(path.delimiter) // delimteres are different for each OS (; or :)
-    for( const dir in dirs) {
-      const filePath = path.join(dir, secondCommand) // paths are different for each os ( / or \)
-      triedPath = filePath
-      try {
-        await access(filePath, fsConstants.X_OK)
-        console.log(`${secondCommand} is ${filePath}`);
-        return;
-      } catch {}
     }
 
     console.log(`${secondCommand}: not found`);
@@ -66,3 +55,20 @@ async function parseCommand(command: string){
   } 
 }
   
+async function locateExecutableV1(secondCommand: string){
+  const userPath = process.env.PATH
+  if (!userPath) {
+    console.log(`${secondCommand}: not found`)
+    return;
+  }
+
+  const dirs = userPath.split(path.delimiter) // delimteres are different for each OS (; or :)
+  for( const dir in dirs) {
+    const filePath = path.join(dir, secondCommand) // paths are different for each os ( / or \)
+    try {
+      await access(filePath, fsConstants.X_OK)
+      console.log(`${secondCommand} is ${filePath}`);
+      return;
+    } catch {}
+  }
+}
