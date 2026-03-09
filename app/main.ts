@@ -48,7 +48,7 @@ async function parseCommand(command: string){
     for( const dir in dirs) {
       const filePath = path.join(dir, secondCommand) // paths are different for each os ( / or \)
       try {
-        await access(filePath, constants.X_OK)
+        const result = await access(filePath, constants.X_OK)
         console.log(`${secondCommand} is ${filePath}`)
       } catch {
         console.log(`${secondCommand}: not found access`);
