@@ -1,6 +1,7 @@
 import { createInterface } from "readline";
 import { exit } from "process";
-import { access, constants } from 'fs/promises';
+import { access } from 'fs/promises';
+import { constants as fsConstants } from "fs";
 import path from "path";
 
 const commands = ["exit","type","echo"]
@@ -50,13 +51,13 @@ async function parseCommand(command: string){
       const filePath = path.join(dir, secondCommand) // paths are different for each os ( / or \)
       triedPath = filePath
       try {
-        await access(filePath, constants.X_OK)
+        await access(filePath, fsConstants.X_OK)
         console.log(`${secondCommand} is ${filePath}`);
         return;
       } catch {}
     }
 
-    console.log(`${secondCommand}: not found: ${triedPath}`);
+    console.log(`${secondCommand}: not found`);
   }
   // handle Echo
   if (mainCommand === "echo") {
