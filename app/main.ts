@@ -52,14 +52,11 @@ async function parseCommand(command: string){
       try {
         console.log(`trying ${filePath}`)
         await access(filePath, constants.X_OK)
-        
         return;
-      } catch {
-        continue;
-      }
+      } catch {}
     }
 
-    console.log(`${secondCommand}: not found tried: ${triedPath}`);
+    console.log(`${secondCommand}: not found tried`);
   }
   // handle Echo
   if (mainCommand === "echo") {
