@@ -31,7 +31,7 @@ async function parseCommand(command: string){
   }
 
   if (mainCommand === "type") {
-    const secondCommand = args[1];
+    const secondCommand = args[0];
 
     if (commands.includes(secondCommand)) {
       console.log(`${secondCommand} is a shell builtin`);
