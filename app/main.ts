@@ -8,12 +8,16 @@ const rl = createInterface({
 
 
 rl.prompt();
-rl.on('line', (command) => {
+rl.on('line', (command: string) => {
   if (command === 'exit') {
     rl.close();
     return;
   }
-  
-  console.log(`${command}: command not found`);
+  const [cmd, ...args] = command.split(' ');
+  if (cmd === "echo") {
+    console.log(args.join(" ")); 
+  } else {
+    console.log(`${command}: command not found`);
+  }
   rl.prompt();
 });
