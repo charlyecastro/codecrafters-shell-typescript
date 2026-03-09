@@ -50,7 +50,6 @@ async function parseCommand(command: string){
       const filePath = path.join(dir, secondCommand) // paths are different for each os ( / or \)
       triedPath = triedPath
       try {
-        console.log(`trying ${filePath}`)
         await access(filePath, constants.X_OK)
         return;
       } catch {}
