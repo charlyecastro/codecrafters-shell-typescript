@@ -14,7 +14,7 @@ const rl = createInterface({
 });
 
 rl.prompt();
-rl.on('line', async (command: string) => {
+rl.on('line', (command: string) => {
   parseCommand(command)
   rl.prompt();
 });

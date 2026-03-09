@@ -5,7 +5,11 @@
   "scripts": {
     "dev": "bun run app/main.ts"
   },
+  "dependencies": {
+    "which": "^4.0.0"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/which": "^3.0.0"
   }
 }
