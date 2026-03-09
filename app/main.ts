@@ -6,6 +6,10 @@ const rl = createInterface({
   prompt: "$ ",
 });
 
+const invalidCommand = (command: string) => {
+  console.log(`${command}: command not found`);
+}
+
 
 rl.prompt();
 
@@ -15,18 +19,21 @@ rl.on('line', (command: string) => {
     rl.close();
     return;
   }
-  const [cmd, ...args] = command.split(' ');
+  const [mainCommand, ...args] = command.split(' ');
   // handle Type
-  if (cmd === "type") {
-    if (args[0] === "echo" || args[0] === "exit" || args[0] === "type") {
+  if (mainCommand === "type") {
+    const secondCommand = args[0];
+    if (secondCommand === "echo" || secondCommand === "exit" || secondCommand === "type") {
       console.log(`${args[0]} is a shell builtin`)
+    } else {
+      invalidCommand(secondCommand)
     }
   }
   // handle Echo
-  else if (cmd === "echo") {
+  else if (mainCommand === "echo") {
     console.log(args.join(" ")); 
   } else {
-    console.log(`${command}: command not found`);
+    invalidCommand(mainCommand)
   }
   rl.prompt();
 });
