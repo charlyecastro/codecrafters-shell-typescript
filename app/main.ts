@@ -50,8 +50,9 @@ async function parseCommand(command: string){
       try {
         const result = await access(filePath, constants.X_OK)
         console.log(`${secondCommand} is ${filePath}`)
+        return;
       } catch {
-        console.log(`${secondCommand}: not found access`);
+        continue
       }
     }
 
