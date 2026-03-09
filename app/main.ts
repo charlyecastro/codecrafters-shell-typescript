@@ -10,7 +10,7 @@ const rl = createInterface({
 rl.prompt();
 
 rl.on('line', (command) => {
-  if (command ==== 'xyz') {
+  if (command === 'xyz') {
     console.log(`${command}: command not found`);
   }
 });
