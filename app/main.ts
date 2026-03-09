@@ -40,7 +40,7 @@ async function parseCommand(command: string){
 
     const userPath = process.env.PATH
     if (!userPath) {
-      console.log(`${secondCommand}: not found`)
+      console.log(`${secondCommand}: not found user path`)
       return;
     }
 
@@ -51,11 +51,11 @@ async function parseCommand(command: string){
         await access(filePath, constants.X_OK)
         console.log(`${secondCommand} is ${filePath}`)
       } catch {
-        console.log(`${secondCommand}: not found`);
+        console.log(`${secondCommand}: not found access`);
       }
     }
 
-    console.log(`${secondCommand}: not found`);
+    console.log(`${secondCommand}: not found fallback`);
   }
   // handle Echo
   if (mainCommand === "echo") {
