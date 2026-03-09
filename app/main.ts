@@ -18,7 +18,7 @@ rl.on('line', (command: string) => {
   const [cmd, ...args] = command.split(' ');
   // handle Type
   if (cmd === "type") {
-    if (args[0] === "echo" || args[0] === "exit") {
+    if (args[0] === "echo" || args[0] === "exit" || args[0] === "type") {
       console.log(`${args[0]} is a shell builtin`)
     }
   }
