@@ -36,8 +36,9 @@ function parseCommand(fullCommand: string) {
       console.log(process.cwd());
       break;
     case COMMANDS.cd:
+      const dir = secondArg === "~" ? (process.env.HOME ?? "") : secondArg;
       try {
-        process.chdir(secondArg);
+        process.chdir(dir);
       } catch {
         console.log(`cd: ${secondArg}: No such file or directory`);
       }
