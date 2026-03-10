@@ -54,8 +54,8 @@ function parseCommand(fullCommand: string){
       }
       console.log(stdout);
       console.log(stderr);
-      return;
     })
+    return;
   }
 
   console.log(`${mainCommand}: command not found`);
