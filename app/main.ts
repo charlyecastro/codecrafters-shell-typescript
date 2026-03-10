@@ -40,7 +40,7 @@ function parseCommand(command: string){
       return
     } 
 
-    const location: string | null = which.sync(command, { nothrow: true });
+    const location: string | null = which.sync(secondCommand, { nothrow: true });
     if (location !== null) {
       console.log(`${secondCommand} is ${location}`);
       return;
