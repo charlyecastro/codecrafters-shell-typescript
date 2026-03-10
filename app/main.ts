@@ -25,6 +25,11 @@ function parseCommand(fullCommand: string){
 
   const [mainCommand, ...args] = fullCommand.split(' ');
 
+  if (locateExecutable(mainCommand)) {
+    execSync(fullCommand, {stdio: "inherit"})
+    return;
+  }
+
   if (mainCommand === "type") {
     const secondCommand = args[0];
 
@@ -45,11 +50,6 @@ function parseCommand(fullCommand: string){
     console.log(args.join(" ")); 
     return;
   } 
-
-  if (locateExecutable(mainCommand)) {
-    execSync(fullCommand, {stdio: "inherit"})
-    return;
-  }
 
   console.log(`${mainCommand}: command not found`);
 }
