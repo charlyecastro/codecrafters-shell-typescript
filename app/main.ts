@@ -1,7 +1,7 @@
 import { createInterface } from "readline";
 import { exit } from "process";
-import { execSync } from 'child_process';
-import {handleTypeCommand, locateExecutable} from "./utils"
+import { execSync } from "child_process";
+import { handleTypeCommand, locateExecutable } from "./utils";
 import { COMMANDS } from "./constants";
 
 const rl = createInterface({
@@ -11,51 +11,43 @@ const rl = createInterface({
 });
 
 rl.prompt();
-rl.on('line', (command: string) => {
-  parseCommand(command)
+rl.on("line", (command: string) => {
+  parseCommand(command);
   rl.prompt();
 });
 
-function parseCommand(fullCommand: string){
+function parseCommand(fullCommand: string) {
   if (fullCommand === COMMANDS.exit) {
     rl.close();
-    exit()
+    exit();
   }
 
-  const [mainCommand, ...args] = fullCommand.split(' ');
+  const [mainCommand, ...args] = fullCommand.split(" ");
   const secondArg = args[0];
 
-  if (mainCommand === COMMANDS.type) {
-    
-    handleTypeCommand(secondArg);
-    return
+  switch (mainCommand) {
+    case COMMANDS.type:
+      handleTypeCommand(secondArg);
+      break;
+    case COMMANDS.echo:
+      console.log(args.join(" "));
+      break;
+    case COMMANDS.pwd:
+      console.log(process.cwd());
+      break;
+    case COMMANDS.cd:
+      try {
+        process.chdir(secondArg);
+      } catch {
+        console.log(`cd: ${secondArg}: No such file or directory`);
+      }
+      break;
+    default:
+      if (locateExecutable(mainCommand)) {
+        execSync(fullCommand, { stdio: "inherit" });
+        return;
+      }
+
+      console.log(`${mainCommand}: command not found`);
   }
-
-  if (mainCommand === COMMANDS.echo) {
-    console.log(args.join(" ")); 
-    return;
-  } 
-
-  if (mainCommand === COMMANDS.pwd) {
-    console.log(process.cwd())
-    return;
-  }
-
-  if (mainCommand === COMMANDS.cd) {
-    try {
-      process.chdir(secondArg);
-    } catch {
-      console.log(`cd: ${secondArg}: No such file or directory`)
-    }
-    
-    return;
-  }
-
-  if (locateExecutable(mainCommand)) {
-    execSync(fullCommand, {stdio: "inherit"})
-    return;
-  }
-
-  console.log(`${mainCommand}: command not found`);
 }
-

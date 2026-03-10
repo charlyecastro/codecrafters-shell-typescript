@@ -1,7 +1,6 @@
 import which from "which";
 import { builtinCommands } from "./constants";
 
-
 export function handleTypeCommand(command: string) {
   if (builtinCommands.includes(command)) {
     console.log(`${command} is a shell builtin`);
@@ -19,9 +18,9 @@ export function handleTypeCommand(command: string) {
 }
 
 export function locateExecutable(command: string): string | null {
-  return which.sync(command, { nothrow: true })
+  return which.sync(command, { nothrow: true });
 }
-  
+
 // async function locateExecutableV1(command: string){
 //   const userPath = process.env.PATH
 //   if (!userPath) {
