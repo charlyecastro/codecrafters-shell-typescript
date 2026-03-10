@@ -1,7 +1,7 @@
 import { createInterface } from "readline";
 import { exit } from "process";
 import which from "which";
-import { exec } from 'child_process';
+import { execSync } from 'child_process';
 
 const commands = ["exit","type","echo"]
 
@@ -47,14 +47,7 @@ function parseCommand(fullCommand: string){
   } 
 
   if (locateExecutable(mainCommand)) {
-    exec(fullCommand, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`exec error: ${error}`);
-        return;
-      }
-      console.log(stdout);
-      console.log(stderr);
-    })
+    execSync(fullCommand);
     return;
   }
 
