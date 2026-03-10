@@ -33,7 +33,8 @@ function parseCommand(fullCommand: string){
       return
     } 
 
-    if (locateExecutable(secondCommand)) {
+    const location = locateExecutable(secondCommand);
+    if (location) {
       console.log(`${secondCommand} is ${location}`);
       return;
     }
@@ -54,8 +55,8 @@ function parseCommand(fullCommand: string){
   console.log(`${mainCommand}: command not found`);
 }
 
-function locateExecutable(command: string): boolean {
-  return which.sync(command, { nothrow: true }) !== null;
+function locateExecutable(command: string): string | null {
+  return which.sync(command, { nothrow: true })
 }
   
 // async function locateExecutableV1(command: string){
