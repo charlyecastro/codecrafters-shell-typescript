@@ -17,6 +17,15 @@ export function handleTypeCommand(command: string) {
   return;
 }
 
+export function handleCdCommand(arg: string) {
+  const dir = arg === "~" ? (process.env.HOME ?? "") : arg;
+  try {
+    process.chdir(dir);
+  } catch {
+    console.log(`cd: ${arg}: No such file or directory`);
+  }
+}
+
 export function locateExecutable(command: string): string | null {
   return which.sync(command, { nothrow: true });
 }

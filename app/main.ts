@@ -1,7 +1,7 @@
 import { createInterface } from "readline";
 import { exit } from "process";
 import { execSync } from "child_process";
-import { handleTypeCommand, locateExecutable } from "./utils";
+import { handleTypeCommand, locateExecutable, handleCdCommand } from "./utils";
 import { COMMANDS } from "./constants";
 
 const rl = createInterface({
@@ -23,11 +23,11 @@ function parseCommand(fullCommand: string) {
   }
 
   const [mainCommand, ...args] = fullCommand.split(" ");
-  const secondArg = args[0];
+  const firstArg = args[0];
 
   switch (mainCommand) {
     case COMMANDS.type:
-      handleTypeCommand(secondArg);
+      handleTypeCommand(firstArg);
       break;
     case COMMANDS.echo:
       console.log(args.join(" "));
@@ -36,12 +36,7 @@ function parseCommand(fullCommand: string) {
       console.log(process.cwd());
       break;
     case COMMANDS.cd:
-      const dir = secondArg === "~" ? (process.env.HOME ?? "") : secondArg;
-      try {
-        process.chdir(dir);
-      } catch {
-        console.log(`cd: ${secondArg}: No such file or directory`);
-      }
+      handleCdCommand(firstArg);
       break;
     default:
       if (locateExecutable(mainCommand)) {
