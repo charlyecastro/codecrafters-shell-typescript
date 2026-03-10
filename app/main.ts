@@ -2,6 +2,7 @@ import { createInterface } from "readline";
 import { exit } from "process";
 import { execSync } from 'child_process';
 import {handleTypeCommand, locateExecutable} from "./utils"
+import { main } from "bun";
 
 const rl = createInterface({
   input: process.stdin,
@@ -33,6 +34,11 @@ function parseCommand(fullCommand: string){
     console.log(args.join(" ")); 
     return;
   } 
+
+  if (mainCommand === "pwd") {
+    console.log(process.cwd())
+    return;
+  }
 
   if (locateExecutable(mainCommand)) {
     execSync(fullCommand, {stdio: "inherit"})

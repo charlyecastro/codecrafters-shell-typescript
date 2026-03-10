@@ -1,6 +1,6 @@
 import which from "which";
 
-export const builtinCommands = ["exit", "type", "echo"];
+export const builtinCommands = ["exit", "type", "echo", "pwd"];
 
 export function handleTypeCommand(command: string) {
   if (builtinCommands.includes(command)) {
