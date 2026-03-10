@@ -23,11 +23,11 @@ function parseCommand(fullCommand: string){
   }
 
   const [mainCommand, ...args] = fullCommand.split(' ');
-  const secondCommand = args[0];
+  const secondArg = args[0];
 
   if (mainCommand === COMMANDS.type) {
     
-    handleTypeCommand(secondCommand);
+    handleTypeCommand(secondArg);
     return
   }
 
@@ -42,7 +42,12 @@ function parseCommand(fullCommand: string){
   }
 
   if (mainCommand === COMMANDS.cd) {
-    process.chdir(secondCommand);
+    try {
+      process.chdir(secondArg);
+    } catch {
+      console.log(`cd: ${secondArg}: No such file or directory`)
+    }
+    
     return;
   }
 
