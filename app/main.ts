@@ -2,7 +2,7 @@ import { createInterface } from "readline";
 import { exit } from "process";
 import { execSync } from 'child_process';
 import {handleTypeCommand, locateExecutable} from "./utils"
-import { main } from "bun";
+import { COMMANDS } from "./constants";
 
 const rl = createInterface({
   input: process.stdin,
@@ -17,26 +17,32 @@ rl.on('line', (command: string) => {
 });
 
 function parseCommand(fullCommand: string){
-  if (fullCommand === 'exit') {
+  if (fullCommand === COMMANDS.exit) {
     rl.close();
     exit()
   }
 
   const [mainCommand, ...args] = fullCommand.split(' ');
+  const secondCommand = args[0];
 
-  if (mainCommand === "type") {
-    const secondCommand = args[0];
+  if (mainCommand === COMMANDS.type) {
+    
     handleTypeCommand(secondCommand);
     return
   }
 
-  if (mainCommand === "echo") {
+  if (mainCommand === COMMANDS.echo) {
     console.log(args.join(" ")); 
     return;
   } 
 
-  if (mainCommand === "pwd") {
+  if (mainCommand === COMMANDS.pwd) {
     console.log(process.cwd())
+    return;
+  }
+
+  if (mainCommand === COMMANDS.cd) {
+    process.chdir(secondCommand);
     return;
   }
 
