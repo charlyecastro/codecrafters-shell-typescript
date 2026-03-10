@@ -47,7 +47,7 @@ function parseCommand(fullCommand: string){
   } 
 
   if (locateExecutable(mainCommand)) {
-    const output = execSync(fullCommand);
+    const output = execSync(fullCommand).toString();
     console.log(output);
     return;
   }
