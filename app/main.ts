@@ -1,9 +1,7 @@
 import { createInterface } from "readline";
 import { exit } from "process";
-import which from "which";
 import { execSync } from 'child_process';
-
-const commands = ["exit","type","echo"]
+import {handleTypeCommand, locateExecutable} from "./utils"
 
 const rl = createInterface({
   input: process.stdin,
@@ -27,22 +25,10 @@ function parseCommand(fullCommand: string){
 
   if (mainCommand === "type") {
     const secondCommand = args[0];
-
-    if (commands.includes(secondCommand)) {
-      console.log(`${secondCommand} is a shell builtin`);
-      return
-    } 
-
-    const location = locateExecutable(secondCommand);
-    if (location) {
-      console.log(`${secondCommand} is ${location}`);
-      return;
-    }
-
-    console.log(`${secondCommand}: not found`);
-    return;
+    handleTypeCommand(secondCommand);
+    return
   }
-  // handle Echo
+
   if (mainCommand === "echo") {
     console.log(args.join(" ")); 
     return;
@@ -56,24 +42,3 @@ function parseCommand(fullCommand: string){
   console.log(`${mainCommand}: command not found`);
 }
 
-function locateExecutable(command: string): string | null {
-  return which.sync(command, { nothrow: true })
-}
-  
-// async function locateExecutableV1(command: string){
-//   const userPath = process.env.PATH
-//   if (!userPath) {
-//     console.log(`${command}: not found`)
-//     return;
-//   }
-
-//   const dirs = userPath.split(path.delimiter) // delimteres are different for each OS (; or :)
-//   for( const dir in dirs) {
-//     const filePath = path.join(dir, command) // paths are different for each os ( / or \)
-//     try {
-//       await access(filePath, fsConstants.X_OK)
-//       console.log(`${command} is ${filePath}`);
-//       return;
-//     } catch {}
-//   }
-// }
