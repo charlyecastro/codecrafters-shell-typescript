@@ -47,8 +47,7 @@ function parseCommand(fullCommand: string){
   } 
 
   if (locateExecutable(mainCommand)) {
-    const output = execSync(fullCommand).toString();
-    console.log(output);
+    execSync(fullCommand, {stdio: "inherit"})
     return;
   }
 
