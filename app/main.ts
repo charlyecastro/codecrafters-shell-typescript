@@ -40,6 +40,7 @@ function parseCommand(fullCommand: string){
     }
 
     console.log(`${secondCommand}: not found`);
+    return;
   }
   // handle Echo
   if (mainCommand === "echo") {
