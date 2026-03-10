@@ -54,6 +54,7 @@ function parseCommand(fullCommand: string){
       }
       console.log(stdout);
       console.log(stderr);
+      return;
     })
   }
 
