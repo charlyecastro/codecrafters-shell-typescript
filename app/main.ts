@@ -1,9 +1,7 @@
 import { createInterface } from "readline";
 import { exit } from "process";
-import { access } from 'fs/promises';
-import { constants as fsConstants } from "fs";
-import path from "path";
 import which from "which";
+import { exec } from 'child_process';
 
 const commands = ["exit","type","echo"]
 
@@ -19,18 +17,13 @@ rl.on('line', (command: string) => {
   rl.prompt();
 });
 
-function parseCommand(command: string){
-  if (command === 'exit') {
+function parseCommand(fullCommand: string){
+  if (fullCommand === 'exit') {
     rl.close();
     exit()
   }
 
-  const [mainCommand, ...args] = command.split(' ');
-
-  if (!commands.includes(mainCommand)) {
-    console.log(`${mainCommand}: command not found`);
-    return
-  }
+  const [mainCommand, ...args] = fullCommand.split(' ');
 
   if (mainCommand === "type") {
     const secondCommand = args[0];
@@ -40,8 +33,7 @@ function parseCommand(command: string){
       return
     } 
 
-    const location: string | null = which.sync(secondCommand, { nothrow: true });
-    if (location !== null) {
+    if (locateExecutable(secondCommand)) {
       console.log(`${secondCommand} is ${location}`);
       return;
     }
@@ -53,22 +45,39 @@ function parseCommand(command: string){
     console.log(args.join(" ")); 
     return;
   } 
-}
-  
-async function locateExecutableV1(secondCommand: string){
-  const userPath = process.env.PATH
-  if (!userPath) {
-    console.log(`${secondCommand}: not found`)
-    return;
+
+  if (locateExecutable(mainCommand)) {
+    exec(fullCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        return;
+      }
+      console.log(stdout);
+      console.log(stderr);
+    })
   }
 
-  const dirs = userPath.split(path.delimiter) // delimteres are different for each OS (; or :)
-  for( const dir in dirs) {
-    const filePath = path.join(dir, secondCommand) // paths are different for each os ( / or \)
-    try {
-      await access(filePath, fsConstants.X_OK)
-      console.log(`${secondCommand} is ${filePath}`);
-      return;
-    } catch {}
-  }
+  console.log(`${mainCommand}: command not found`);
 }
+
+function locateExecutable(command: string): boolean {
+  return which.sync(command, { nothrow: true }) !== null;
+}
+  
+// async function locateExecutableV1(command: string){
+//   const userPath = process.env.PATH
+//   if (!userPath) {
+//     console.log(`${command}: not found`)
+//     return;
+//   }
+
+//   const dirs = userPath.split(path.delimiter) // delimteres are different for each OS (; or :)
+//   for( const dir in dirs) {
+//     const filePath = path.join(dir, command) // paths are different for each os ( / or \)
+//     try {
+//       await access(filePath, fsConstants.X_OK)
+//       console.log(`${command} is ${filePath}`);
+//       return;
+//     } catch {}
+//   }
+// }
