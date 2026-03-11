@@ -3,6 +3,7 @@ import { exit } from "process";
 import { execSync } from "child_process";
 import { handleTypeCommand, locateExecutable, handleCdCommand } from "./utils";
 import { COMMANDS } from "./constants";
+import { parse } from "shell-quote";
 
 const rl = createInterface({
   input: process.stdin,
@@ -22,28 +23,28 @@ function parseCommand(fullCommand: string) {
     exit();
   }
 
-  const [mainCommand, ...args] = fullCommand.split(" ");
-  const firstArg = args[0];
-
-  switch (mainCommand) {
+  const [command, ...args] = parse(fullCommand) as string[];
+  switch (command) {
     case COMMANDS.type:
-      handleTypeCommand(firstArg);
+      const value = args[0];
+      handleTypeCommand(value);
       break;
     case COMMANDS.echo:
-      console.log(args.join(" "));
+      console.log(args.join(' '));
       break;
     case COMMANDS.pwd:
       console.log(process.cwd());
       break;
     case COMMANDS.cd:
-      handleCdCommand(firstArg);
+      const dir = args[0];
+      handleCdCommand(dir);
       break;
     default:
-      if (locateExecutable(mainCommand)) {
+      if (locateExecutable(command)) {
         execSync(fullCommand, { stdio: "inherit" });
         return;
       }
 
-      console.log(`${mainCommand}: command not found`);
+      console.log(`${command}: command not found`);
   }
 }
