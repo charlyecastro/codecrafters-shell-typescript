@@ -6,10 +6,16 @@ import {
   locateExecutable,
   handleCdCommand,
   log,
-  isValidPipeOperator
+  isValidPipeOperator,
 } from "./utils";
 import { COMMANDS } from "./constants";
-import { parse } from "shell-quote";
+import { parse } from "shell-quote"; // Maybe build my own parser
+
+/** Normalize 1> to > so shell-quote parses it as a redirect operator */
+/** shell-quote does not support 1> */
+function normalizeRedirect(input: string): string {
+  return input.replace(/\b1>/g, ">");
+}
 
 const rl = createInterface({
   input: process.stdin,
@@ -29,17 +35,18 @@ function parseCommand(fullCommand: string) {
     exit();
   }
 
-  const [command, ...args] = parse(fullCommand) as string[];
+  const [command, ...args] = parse(normalizeRedirect(fullCommand)) as string[];
   const [operator, file] = args.slice(-2);
-  const isValidPipe = isValidPipeOperator(operator)
-  const redirectFile = isValidPipe ? file : undefined
+  const isValidPipe = isValidPipeOperator(operator);
+  const redirectFile = isValidPipe ? file : undefined;
+
   switch (command) {
     case COMMANDS.type:
       const value = args[0];
       handleTypeCommand(value);
       break;
     case COMMANDS.echo:
-      const finalArgs = isValidPipe ? args.slice(0,-2) : args;
+      const finalArgs = isValidPipe ? args.slice(0, -2) : args;
       log(finalArgs.join(" "), redirectFile);
       break;
     case COMMANDS.pwd:
@@ -54,7 +61,6 @@ function parseCommand(fullCommand: string) {
         execSync(fullCommand, { stdio: "inherit" });
         return;
       }
-
       console.log(`${command}: command not found`);
   }
 }
