@@ -45,7 +45,7 @@ export function log(content: string, file?: string) {
     }
     return;
   }
-  console.log(content);
+  console.log(content  + "\n");
 }
 
 // async function locateExecutableV1(command: string){
