@@ -1,6 +1,6 @@
 import { createInterface } from "readline";
 import { exit } from "process";
-import { execSync, type StdioOptions } from "child_process";
+import { spawnSync } from "child_process";
 import { parse } from "shell-quote"; // Maybe build my own parser
 import path from "path";
 import fs from "fs";
@@ -65,10 +65,12 @@ function parseCommand(fullCommand: string) {
       handleCdCommand(dir);
       break;
     default:
-      if (!locateExecutable(command)) {
+      const executablePath = locateExecutable(command);
+      if (!executablePath) {
         console.log(`${command}: command not found`);
         return;
       }
+
       if (redirectFile) {
         const dir = path.dirname(redirectFile);
 
@@ -77,10 +79,11 @@ function parseCommand(fullCommand: string) {
         }
 
         const fd = fs.openSync(redirectFile, "w");
-        execSync(fullCommand, { stdio: ["inherit", fd, fd] });
+        spawnSync(executablePath, finalArgs, { stdio: ["inherit", fd, fd], argv0: "command" });
         fs.closeSync(fd);
         return;
       }
-      execSync(fullCommand, { stdio: "inherit" });
+      spawnSync(executablePath, finalArgs, { stdio: ["inherit"], argv0: "command" });
+
   }
 }
