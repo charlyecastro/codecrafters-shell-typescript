@@ -31,12 +31,21 @@ export function locateExecutable(command: string): string | null {
   return which.sync(command, { nothrow: true });
 }
 
-export function writeToFile(file: string, content: string) {
-  try {
-    fs.writeFileSync(file, content);
-  } catch (err) {
-    console.log(err);
+export function isValidPipeOperator(operatorString: string) {
+  const operator = JSON.parse(JSON.stringify(operatorString)).op ?? "";
+  return operator === `>` || operator === `1>`;
+}
+
+export function log(content: string, file?: string) {
+  if (file) {
+    try {
+      fs.writeFileSync(file, content + "\n");
+    } catch (err) {
+      console.log(err);
+    }
+    return;
   }
+  console.log(content);
 }
 
 // async function locateExecutableV1(command: string){

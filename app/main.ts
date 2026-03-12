@@ -5,7 +5,8 @@ import {
   handleTypeCommand,
   locateExecutable,
   handleCdCommand,
-  writeToFile,
+  log,
+  isValidPipeOperator
 } from "./utils";
 import { COMMANDS } from "./constants";
 import { parse } from "shell-quote";
@@ -29,23 +30,20 @@ function parseCommand(fullCommand: string) {
   }
 
   const [command, ...args] = parse(fullCommand) as string[];
+  const [operator, file] = args.slice(-2);
+  const isValidPipe = isValidPipeOperator(operator)
+  const redirectFile = isValidPipe ? file : undefined
   switch (command) {
     case COMMANDS.type:
       const value = args[0];
       handleTypeCommand(value);
       break;
     case COMMANDS.echo:
-      const [operatorString, file] = args.slice(-2);
-      const operator = JSON.parse(JSON.stringify(operatorString)).op ?? "";
-      if (operator === `>` || operator === `1>`) {
-        const content = args.slice(0, args.length - 2).join(" ");
-        writeToFile(file, content);
-        break;
-      }
-      console.log(args.join(" "));
+      const finalArgs = isValidPipe ? args.slice(0,-2) : args;
+      log(finalArgs.join(" "), redirectFile);
       break;
     case COMMANDS.pwd:
-      console.log(process.cwd());
+      log(process.cwd(), redirectFile);
       break;
     case COMMANDS.cd:
       const dir = args[0];
