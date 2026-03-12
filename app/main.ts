@@ -2,7 +2,7 @@ import { createInterface } from "readline";
 import { exit } from "process";
 import { execSync, type StdioOptions } from "child_process";
 import { parse } from "shell-quote"; // Maybe build my own parser
-import path from "path"
+import path from "path";
 import fs from "fs";
 
 import {
@@ -13,7 +13,6 @@ import {
   isValidPipeOperator,
 } from "./utils";
 import { COMMANDS } from "./constants";
-
 
 /** Normalize 1> to > so shell-quote parses it as a redirect operator */
 /** shell-quote does not support 1> */
@@ -48,7 +47,7 @@ function parseCommand(fullCommand: string) {
 
   // Ensure operator and file args are excluded
   const finalArgs = isValidPipe ? args.slice(0, -2) : args;
-  // const finalFullCommand = [command, finalArgs].join(" ");
+  const finalFullCommand = [command, finalArgs].join(" ");
 
   switch (command) {
     case COMMANDS.type:
@@ -70,11 +69,15 @@ function parseCommand(fullCommand: string) {
         console.log(`${command}: command not found`);
         return;
       }
-      let config: StdioOptions = ["inherit", "inherit", "inherit"];
-      if (redirectFile && !fs.existsSync(redirectFile)) {
-        fs.writeFileSync(redirectFile, "");
+      if (redirectFile) {
+        const dir = path.dirname(redirectFile);
+        if (!fs.existsSync(redirectFile))
+          fs.mkdirSync(dir, { recursive: true });
+
+        const fd = fs.openSync(redirectFile, "w");
+        execSync(finalFullCommand, { stdio: ["inherit", fd, fd] });
+        return;
       }
-      execSync(fullCommand, { stdio: config });
-      return;
+      execSync(finalFullCommand, { stdio: "inherit" });
   }
 }
