@@ -39,13 +39,13 @@ export function isValidPipeOperator(operatorString: string) {
 export function log(content: string, file?: string) {
   if (file) {
     try {
-      fs.writeFileSync(file, content + "\n", {flag: "w"});
+      fs.writeFileSync(file, content, {flag: "w"});
     } catch (err) {
       console.log(err);
     }
     return;
   }
-  console.log(content  + "\n");
+  console.log(content);
 }
 
 // async function locateExecutableV1(command: string){
