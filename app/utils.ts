@@ -1,5 +1,6 @@
 import which from "which";
 import { builtinCommands } from "./constants";
+import fs from "fs";
 
 export function handleTypeCommand(command: string) {
   if (builtinCommands.includes(command)) {
@@ -28,6 +29,14 @@ export function handleCdCommand(arg: string) {
 
 export function locateExecutable(command: string): string | null {
   return which.sync(command, { nothrow: true });
+}
+
+export function writeToFile(file: string, content: string) {
+  try {
+    fs.writeFileSync(file, content);
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 // async function locateExecutableV1(command: string){

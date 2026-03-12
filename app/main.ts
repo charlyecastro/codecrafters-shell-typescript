@@ -1,7 +1,12 @@
 import { createInterface } from "readline";
 import { exit } from "process";
 import { execSync } from "child_process";
-import { handleTypeCommand, locateExecutable, handleCdCommand } from "./utils";
+import {
+  handleTypeCommand,
+  locateExecutable,
+  handleCdCommand,
+  writeToFile,
+} from "./utils";
 import { COMMANDS } from "./constants";
 import { parse } from "shell-quote";
 
@@ -30,7 +35,14 @@ function parseCommand(fullCommand: string) {
       handleTypeCommand(value);
       break;
     case COMMANDS.echo:
-      console.log(args.join(' '));
+      const [operatorString, file] = args.slice(-2);
+      const operator = JSON.parse(JSON.stringify(operatorString)).op ?? "";
+      if (operator === `>` || operator === `1>`) {
+        const content = args.slice(0, args.length - 2).join(" ");
+        writeToFile(file, content);
+        break;
+      }
+      console.log(args.join(" "));
       break;
     case COMMANDS.pwd:
       console.log(process.cwd());
