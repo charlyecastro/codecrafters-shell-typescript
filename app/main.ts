@@ -72,6 +72,11 @@ function parseCommand(fullCommand: string) {
         return;
       }
 
+      // console.log(`executablePath: ${executablePath}`)
+      // console.log(`executablePath: ${executablePath}`)
+      // console.log(`executablePath: ${executablePath}`)
+
+
       if (redirectFile) {
         const dir = path.dirname(redirectFile);
 
@@ -80,11 +85,11 @@ function parseCommand(fullCommand: string) {
         }
 
         const fd = fs.openSync(redirectFile, "w");
-        spawnSync(executablePath, finalArgs, { stdio: ["inherit", fd, fd], argv0: "command" });
+        spawnSync(executablePath, finalArgs, { stdio: ["inherit", fd, fd], argv0: command });
         fs.closeSync(fd);
         return;
       }
-      spawnSync(executablePath, finalArgs, { stdio: ["inherit"], argv0: "command" });
+      spawnSync(executablePath, finalArgs, { stdio: ["inherit"], argv0: command });
 
   }
 }
