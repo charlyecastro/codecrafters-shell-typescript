@@ -71,11 +71,14 @@ function parseCommand(fullCommand: string) {
       }
       if (redirectFile) {
         const dir = path.dirname(redirectFile);
-        if (!fs.existsSync(redirectFile))
+
+        if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
+        }
 
         const fd = fs.openSync(redirectFile, "w");
         execSync(finalFullCommand, { stdio: ["inherit", fd, fd] });
+        fs.closeSync(fd);
         return;
       }
       execSync(finalFullCommand, { stdio: "inherit" });
