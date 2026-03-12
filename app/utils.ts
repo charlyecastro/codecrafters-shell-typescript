@@ -39,7 +39,7 @@ export function isValidPipeOperator(operatorString: string) {
 export function log(content: string, file?: string) {
   if (file) {
     try {
-      fs.writeFileSync(file, content + "\n");
+      fs.writeFileSync(file, content + "\n", {flag: "w"});
     } catch (err) {
       console.log(err);
     }
