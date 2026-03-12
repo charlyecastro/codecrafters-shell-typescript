@@ -47,7 +47,7 @@ function parseCommand(fullCommand: string) {
 
   // Ensure operator and file args are excluded
   const finalArgs = isValidPipe ? args.slice(0, -2) : args;
-  const finalFullCommand = [command, finalArgs].join(" ");
+  // const finalFullCommand = [command, finalArgs].join(" ");
 
   switch (command) {
     case COMMANDS.type:
@@ -77,10 +77,10 @@ function parseCommand(fullCommand: string) {
         }
 
         const fd = fs.openSync(redirectFile, "w");
-        execSync(finalFullCommand, { stdio: ["inherit", fd, fd] });
+        execSync(fullCommand, { stdio: ["inherit", fd, fd] });
         fs.closeSync(fd);
         return;
       }
-      execSync(finalFullCommand, { stdio: "inherit" });
+      execSync(fullCommand, { stdio: "inherit" });
   }
 }
