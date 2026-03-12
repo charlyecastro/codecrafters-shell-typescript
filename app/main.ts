@@ -1,6 +1,10 @@
 import { createInterface } from "readline";
 import { exit } from "process";
-import { execSync } from "child_process";
+import { execSync, type StdioOptions } from "child_process";
+import { parse } from "shell-quote"; // Maybe build my own parser
+import path from "path"
+import fs from "fs";
+
 import {
   handleTypeCommand,
   locateExecutable,
@@ -9,7 +13,7 @@ import {
   isValidPipeOperator,
 } from "./utils";
 import { COMMANDS } from "./constants";
-import { parse } from "shell-quote"; // Maybe build my own parser
+
 
 /** Normalize 1> to > so shell-quote parses it as a redirect operator */
 /** shell-quote does not support 1> */
@@ -36,9 +40,15 @@ function parseCommand(fullCommand: string) {
   }
 
   const [command, ...args] = parse(normalizeRedirect(fullCommand)) as string[];
+
+  // Check if operator and file args exist
   const [operator, file] = args.slice(-2);
   const isValidPipe = isValidPipeOperator(operator);
   const redirectFile = isValidPipe ? file : undefined;
+
+  // Ensure operator and file args are excluded
+  const finalArgs = isValidPipe ? args.slice(0, -2) : args;
+  // const finalFullCommand = [command, finalArgs].join(" ");
 
   switch (command) {
     case COMMANDS.type:
@@ -46,7 +56,6 @@ function parseCommand(fullCommand: string) {
       handleTypeCommand(value);
       break;
     case COMMANDS.echo:
-      const finalArgs = isValidPipe ? args.slice(0, -2) : args;
       log(finalArgs.join(" "), redirectFile);
       break;
     case COMMANDS.pwd:
@@ -57,10 +66,15 @@ function parseCommand(fullCommand: string) {
       handleCdCommand(dir);
       break;
     default:
-      if (locateExecutable(command)) {
-        execSync(fullCommand, { stdio: "inherit" });
+      if (!locateExecutable(command)) {
+        console.log(`${command}: command not found`);
         return;
       }
-      console.log(`${command}: command not found`);
+      let config: StdioOptions = ["inherit", "inherit", "inherit"];
+      if (redirectFile && !fs.existsSync(redirectFile)) {
+        fs.writeFileSync(redirectFile, "");
+      }
+      execSync(fullCommand, { stdio: config });
+      return;
   }
 }
