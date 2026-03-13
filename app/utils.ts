@@ -34,7 +34,7 @@ export function locateExecutable(command: string): string | null {
 
 export function isValidPipeOperator(operatorString: string) {
   const operator = JSON.parse(JSON.stringify(operatorString)).op ?? "";
-  return operator === `>` || operator === `1>`;
+  return operator === `>`;
 }
 
 export function confirmDirExists(file: string) {
@@ -46,16 +46,18 @@ export function confirmDirExists(file: string) {
 }
 
 export function log(content: string, file?: string) {
-  if (file) {
-    try {
-      confirmDirExists(file);
-      fs.writeFileSync(file, content);
-    } catch (err) {
-      console.log(err);
-    }
+  if (!file) {
+    console.log(content);
     return;
   }
-  console.log(content);
+
+  try {
+    confirmDirExists(file);
+    fs.writeFileSync(file, content + "\n");
+  } catch (err) {
+    console.log(err);
+  }
+  return;
 }
 
 // async function locateExecutableV1(command: string){

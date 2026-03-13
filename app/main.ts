@@ -1,6 +1,6 @@
 import { createInterface } from "readline";
 import { exit } from "process";
-import { spawnSync } from "child_process";
+import { execSync } from "child_process";
 import { parse } from "shell-quote"; // Maybe build my own parser
 import fs from "fs";
 
@@ -10,7 +10,7 @@ import {
   handleCdCommand,
   log,
   isValidPipeOperator,
-  confirmDirExists
+  confirmDirExists,
 } from "./utils";
 import { COMMANDS } from "./constants";
 
@@ -38,7 +38,9 @@ function parseCommand(fullCommand: string) {
     exit();
   }
 
-  const [command, ...args] = parse(normalizeRedirect(fullCommand)) as string[];
+  const normalized = normalizeRedirect(fullCommand);
+  const parsed = parse(normalized) as any[];
+  const [command, ...args] = parsed as string[];
 
   // Check if operator and file args exist
   const [operator, file] = args.slice(-2);
@@ -47,8 +49,7 @@ function parseCommand(fullCommand: string) {
 
   // Ensure operator and file args are excluded
   const finalArgs = isValidPipe ? args.slice(0, -2) : args;
-  finalArgs.push("\n")
-  // const finalFullCommand = [command, finalArgs].join(" ");
+  const finalFullCommand = [command, finalArgs].join(" ");
 
   switch (command) {
     case COMMANDS.type:
@@ -68,18 +69,25 @@ function parseCommand(fullCommand: string) {
     default:
       const executablePath = locateExecutable(command);
       if (!executablePath) {
-        console.log(`${command}: command not found`);
+        process.stdout.write(`${command}: command not found\n`);
         return;
       }
       if (redirectFile) {
-        confirmDirExists(file)
-        
+        confirmDirExists(redirectFile);
         const fd = fs.openSync(redirectFile, "w");
-        spawnSync(executablePath, finalArgs, { stdio: ["inherit", fd, fd], argv0: command });
+        execSync(finalFullCommand, { stdio: ["inherit", fd, fd] });
+        // spawnSync(executablePath, finalArgs, {
+        //   stdio: ["inherit", fd, fd],
+        //   argv0: command,
+        // });
         fs.closeSync(fd);
         return;
       }
-      spawnSync(executablePath, finalArgs, { stdio: ["inherit"], argv0: command });
+      execSync(finalFullCommand, { stdio: "inherit" });
 
+    // spawnSync(executablePath, finalArgs, {
+    //   stdio: "inherit",
+    //   argv0: command,
+    // });
   }
 }
