@@ -49,7 +49,7 @@ function parseCommand(fullCommand: string) {
 
   // Ensure operator and file args are excluded
   const finalArgs = isValidPipe ? args.slice(0, -2) : args;
-  const finalFullCommand = [command, finalArgs].join(" ");
+  const finalFullCommand = [command, ...finalArgs].join(" ");
 
   switch (command) {
     case COMMANDS.type:
