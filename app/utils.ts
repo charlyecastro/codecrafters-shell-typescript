@@ -1,6 +1,7 @@
 import which from "which";
 import { builtinCommands } from "./constants";
 import fs from "fs";
+import path from "path";
 
 export function handleTypeCommand(command: string) {
   if (builtinCommands.includes(command)) {
@@ -36,10 +37,19 @@ export function isValidPipeOperator(operatorString: string) {
   return operator === `>` || operator === `1>`;
 }
 
+export function confirmDirExists(file: string) {
+  const dir = path.dirname(file);
+
+  if (fs.existsSync(dir)) return;
+
+  fs.mkdirSync(dir, { recursive: true });
+}
+
 export function log(content: string, file?: string) {
   if (file) {
     try {
-      fs.writeFileSync(file, content, {flag: "w"});
+      confirmDirExists(file);
+      fs.writeFileSync(file, content);
     } catch (err) {
       console.log(err);
     }
