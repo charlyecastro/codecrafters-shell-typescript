@@ -9,7 +9,7 @@ import {
   locateExecutable,
   handleCdCommand,
   log,
-  isValidPipeOperator,
+  extractRedirect,
   confirmDirExists,
 } from "./utils";
 import { COMMANDS } from "./constants";
@@ -38,22 +38,14 @@ function parseCommand(fullCommand: string) {
     exit();
   }
 
-  const normalized = normalizeRedirect(fullCommand);
-  const parsed = parse(normalized) as any[];
-  const [command, ...args] = parsed as string[];
-
-  // Check if operator and file args exist
-  const [operator, file] = args.slice(-2);
-  const isValidPipe = isValidPipeOperator(operator);
-  const redirectFile = isValidPipe ? file : undefined;
-
-  // Ensure operator and file args are excluded
-  const finalArgs = isValidPipe ? args.slice(0, -2) : args;
+  const normalizedCommand = normalizeRedirect(fullCommand);
+  const parsedCommand = parse(normalizedCommand);
+  const { sanitizedCommand, redirectFile } = extractRedirect(parsedCommand);
+  const [command, ...finalArgs] = sanitizedCommand;
 
   switch (command) {
     case COMMANDS.type:
-      const value = args[0];
-      handleTypeCommand(value);
+      handleTypeCommand(finalArgs[0]);
       break;
     case COMMANDS.echo:
       log(finalArgs.join(" "), redirectFile);
@@ -62,8 +54,7 @@ function parseCommand(fullCommand: string) {
       log(process.cwd(), redirectFile);
       break;
     case COMMANDS.cd:
-      const dir = args[0];
-      handleCdCommand(dir);
+      handleCdCommand(finalArgs[0]);
       break;
     default:
       const executablePath = locateExecutable(command);

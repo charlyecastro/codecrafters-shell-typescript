@@ -2,6 +2,7 @@ import which from "which";
 import { builtinCommands } from "./constants";
 import fs from "fs";
 import path from "path";
+import { parse } from "shell-quote"; // Maybe build my own parser
 
 export function handleTypeCommand(command: string) {
   if (builtinCommands.includes(command)) {
@@ -32,9 +33,21 @@ export function locateExecutable(command: string): string | null {
   return which.sync(command, { nothrow: true });
 }
 
-export function isValidPipeOperator(operatorString: string) {
-  const operator = JSON.parse(JSON.stringify(operatorString)).op ?? "";
-  return operator === `>`;
+export function isValidPipeOperator(token: unknown) {
+  return (token as any)?.op === ">";
+}
+
+export function extractRedirect(parsed: ReturnType<typeof parse>): {
+  sanitizedCommand: string[];
+  redirectFile?: string;
+} {
+  const opIndex = parsed.findIndex(isValidPipeOperator);
+  if (opIndex === -1) {
+    return { sanitizedCommand: parsed as string[] };
+  }
+  const sanitizedCommand = parsed.slice(0, opIndex) as string[];
+  const redirectFile = parsed[opIndex + 1] as string;
+  return { sanitizedCommand, redirectFile };
 }
 
 export function confirmDirExists(file: string) {
