@@ -1,6 +1,6 @@
 import { createInterface } from "readline";
 import { exit } from "process";
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
 import { parse } from "shell-quote"; // Maybe build my own parser
 import fs from "fs";
 
@@ -49,7 +49,6 @@ function parseCommand(fullCommand: string) {
 
   // Ensure operator and file args are excluded
   const finalArgs = isValidPipe ? args.slice(0, -2) : args;
-  const finalFullCommand = [command, ...finalArgs].join(" ");
 
   switch (command) {
     case COMMANDS.type:
@@ -75,19 +74,16 @@ function parseCommand(fullCommand: string) {
       if (redirectFile) {
         confirmDirExists(redirectFile);
         const fd = fs.openSync(redirectFile, "w");
-        execSync(finalFullCommand, { stdio: ["inherit", fd, fd] });
-        // spawnSync(executablePath, finalArgs, {
-        //   stdio: ["inherit", fd, fd],
-        //   argv0: command,
-        // });
+        spawnSync(executablePath, finalArgs, {
+          stdio: ["inherit", fd, "inherit"],
+          argv0: command,
+        });
         fs.closeSync(fd);
         return;
       }
-      execSync(finalFullCommand, { stdio: "inherit" });
-
-    // spawnSync(executablePath, finalArgs, {
-    //   stdio: "inherit",
-    //   argv0: command,
-    // });
+      spawnSync(executablePath, finalArgs, {
+        stdio: "inherit",
+        argv0: command,
+      });
   }
 }
